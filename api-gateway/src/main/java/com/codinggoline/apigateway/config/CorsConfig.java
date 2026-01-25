@@ -18,7 +18,9 @@ public class CorsConfig {
 
         config.setAllowedOrigins(List.of(
                 "http://localhost:4200",
-                "http://127.0.0.1:4200"
+                "http://127.0.0.1:4200",
+                "http://vps-665ee063.vps.ovh.ca:4200",
+                "http://51.222.111.246:4200"
         ));
 
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
