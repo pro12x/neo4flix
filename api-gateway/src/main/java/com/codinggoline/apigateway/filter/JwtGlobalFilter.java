@@ -65,7 +65,9 @@ public class JwtGlobalFilter implements GlobalFilter, Ordered {
                path.contains("/users/register") ||
                path.contains("/users/login") ||
                path.contains("/actuator") ||
-               path.contains("/eureka");
+               path.contains("/eureka") ||
+               // temporarily allow ratings endpoints for debugging
+               path.contains("/api/v1/ratings");
     }
 
     private Claims validateToken(String token) {
