@@ -53,24 +53,26 @@ spring:
           enabled: true
           lower-case-service-id: true
 
-      globalcors:
-        cors-configurations:
-          '[/**]':
-            allowedOrigins:
-              - "http://localhost:4200"
-              - "http://127.0.0.1:4200"
-              - "http://vps-665ee063.vps.ovh.ca:4200"
-              - "http://51.222.111.246:4200"
-            allowedMethods:
-              - GET
-              - POST
-              - PUT
-              - DELETE
-              - OPTIONS
-              - PATCH
-            allowedHeaders: "*"
-            allowCredentials: true
-            maxAge: 3600
+      server:
+        webflux:
+          globalcors:
+            cors-configurations:
+              '[/**]':
+                allowedOrigins:
+                  - "http://localhost:4200"
+                  - "http://127.0.0.1:4200"
+                  - "http://vps-665ee063.vps.ovh.ca:4200"
+                  - "http://51.222.111.246:4200"
+                allowedMethods:
+                  - GET
+                  - POST
+                  - PUT
+                  - DELETE
+                  - OPTIONS
+                  - PATCH
+                allowedHeaders: "*"
+                allowCredentials: true
+                maxAge: 3600
 
 server:
   port: ${API_GATEWAY_PORT:1111}
