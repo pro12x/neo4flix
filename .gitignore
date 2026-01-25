@@ -10,3 +10,5 @@ node_modules/
 **/node_modules/
 docs
 logs
+package-lock.json
+**/package-lock.json
