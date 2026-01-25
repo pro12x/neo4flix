@@ -1,23 +1,25 @@
 # ========================================
 # Stage 1: Build with Maven
 # ========================================
-FROM eclipse-temurin:17-jdk-alpine AS builder
+FROM maven:3.9-eclipse-temurin-17-alpine AS builder
 
 WORKDIR /build
 
-# Copy Maven files
+# Copy parent POM first
 COPY pom.xml .
-COPY mvnw .
-COPY .mvn .mvn
+
+# Copy service POM
+COPY rating-service/pom.xml rating-service/
 
 # Download dependencies (cached layer)
-RUN ./mvnw dependency:go-offline -B || true
+WORKDIR /build/rating-service
+RUN mvn dependency:go-offline -B || true
 
 # Copy source code
-COPY src ./src
+COPY rating-service/src ./src
 
 # Build the application
-RUN ./mvnw clean package -DskipTests -B
+RUN mvn clean package -DskipTests -B
 
 # ========================================
 # Stage 2: Runtime with JRE
@@ -29,7 +31,7 @@ RUN apk add --no-cache curl
 WORKDIR /app
 
 # Copy JAR from builder stage
-COPY --from=builder /build/target/*.jar app.jar
+COPY --from=builder /build/rating-service/target/*.jar app.jar
 
 EXPOSE 1114
 

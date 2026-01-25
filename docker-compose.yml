@@ -26,8 +26,8 @@ services:
     # Eureka Service Discovery
     eureka-server:
         build:
-            context: ./eureka-server
-            dockerfile: Dockerfile
+            context: .
+            dockerfile: eureka-server/Dockerfile
         container_name: ${APP_NAME}-eureka-server
         restart: unless-stopped
         ports:
@@ -48,8 +48,8 @@ services:
     # API Gateway
     api-gateway:
         build:
-            context: ./api-gateway
-            dockerfile: Dockerfile
+            context: .
+            dockerfile: api-gateway/Dockerfile
         container_name: ${APP_NAME}-api-gateway
         restart: unless-stopped
         ports:
@@ -75,8 +75,8 @@ services:
     # User Microservice
     user-service:
         build:
-            context: ./user-service
-            dockerfile: Dockerfile
+            context: .
+            dockerfile: user-service/Dockerfile
         container_name: ${APP_NAME}-user-service
         restart: unless-stopped
         ports:
@@ -102,8 +102,8 @@ services:
     # Movie Microservice
     movie-service:
         build:
-            context: ./movie-service
-            dockerfile: Dockerfile
+            context: .
+            dockerfile: movie-service/Dockerfile
         container_name: ${APP_NAME}-movie-service
         restart: unless-stopped
         ports:
@@ -127,8 +127,8 @@ services:
     # Rating Microservice
     rating-service:
         build:
-            context: ./rating-service
-            dockerfile: Dockerfile
+            context: .
+            dockerfile: rating-service/Dockerfile
         container_name: ${APP_NAME}-rating-service
         restart: unless-stopped
         ports:
@@ -152,8 +152,8 @@ services:
     # Recommendation Microservice
     recommendation-service:
         build:
-            context: ./recommendation-service
-            dockerfile: Dockerfile
+            context: .
+            dockerfile: recommendation-service/Dockerfile
         container_name: ${APP_NAME}-recommendation-service
         restart: unless-stopped
         ports:

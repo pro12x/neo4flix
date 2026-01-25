@@ -1,0 +1,19 @@
+# Node modules
+node_modules/
+**/node_modules/
+
+# Angular build
+neo4flix-ui/dist/
+neo4flix-ui/.angular/
+
+# IDE
+.idea/
+.vscode/
+
+# Git
+.git/
+
+# Logs
+logs/
+*.log
+

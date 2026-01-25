@@ -1,14 +1,28 @@
-.idea
-.vscode
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Environment
 .env
-target/
-**/target/
+
+# Logs
 *.log
-**/*.log
-.DS_Store
-node_modules/
-**/node_modules/
+logs/
 docs
-logs
-package-lock.json
-**/package-lock.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node/Frontend
+node_modules/
+dist/
+.angular/
+
+# Build output (keep Maven wrapper)
+**/target/*.jar
+**/target/classes/
+**/target/generated-sources/
+**/target/maven-status/
+
