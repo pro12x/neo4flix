@@ -53,6 +53,21 @@ spring:
           enabled: true
           lower-case-service-id: true
 
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOriginPatterns: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+              - PATCH
+            allowedHeaders: "*"
+            allowCredentials: true
+            maxAge: 3600
+
 server:
   port: ${API_GATEWAY_PORT:1111}
 
