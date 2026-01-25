@@ -2,6 +2,7 @@ package com.codinggoline.ratingservice.controller;
 
 import com.codinggoline.ratingservice.dto.RatingRequest;
 import com.codinggoline.ratingservice.dto.RatingResponse;
+import com.codinggoline.ratingservice.dto.UpdateRatingRequest;
 import com.codinggoline.ratingservice.service.RatingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -54,9 +55,16 @@ public class RatingController {
     public ResponseEntity<RatingResponse> updateRating(
             @PathVariable String userId,
             @PathVariable String movieId,
-            @Valid @RequestBody RatingRequest request) {
-        log.info("Received request to update rating for user {} and movie {}", userId, movieId);
-        RatingResponse response = ratingService.updateRating(userId, movieId, request);
+            @Valid @RequestBody UpdateRatingRequest request) {
+        log.info("Received request to update rating for user {} and movie {} with payload: {}", userId, movieId, request);
+        // Build a RatingRequest to reuse existing service overload
+        RatingRequest fullRequest = RatingRequest.builder()
+                .userId(userId)
+                .movieId(movieId)
+                .rating(request.getRating())
+                .review(request.getReview())
+                .build();
+        RatingResponse response = ratingService.updateRating(userId, movieId, fullRequest);
         return ResponseEntity.ok(response);
     }
 

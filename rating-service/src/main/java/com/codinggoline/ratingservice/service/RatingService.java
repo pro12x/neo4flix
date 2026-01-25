@@ -88,7 +88,7 @@ public class RatingService {
     }
 
     @Transactional
-    public RatingResponse updateRating(String userId, String movieId, RatingRequest request) {
+    public RatingResponse updateRating(String userId, String movieId, Double rating, String review) {
         log.info("Updating rating for user {} and movie {}", userId, movieId);
 
         UserNode existingRating = ratingRepository.findUserRatingForMovie(userId, movieId);
@@ -97,15 +97,21 @@ public class RatingService {
             throw new NotFoundException("RATING_NOT_FOUND", "Rating not found for this user and movie");
         }
 
-        ratingRepository.updateRating(userId, movieId, request.getRating(), request.getReview());
+        ratingRepository.updateRating(userId, movieId, rating, review);
 
         return RatingResponse.builder()
                 .userId(userId)
                 .movieId(movieId)
-                .rating(request.getRating())
-                .review(request.getReview())
+                .rating(rating)
+                .review(review)
                 .updatedAt(OffsetDateTime.now())
                 .build();
+    }
+
+    // Backwards-compatible overload used by some callers
+    @Transactional
+    public RatingResponse updateRating(String userId, String movieId, com.codinggoline.ratingservice.dto.RatingRequest request) {
+        return updateRating(userId, movieId, request.getRating(), request.getReview());
     }
 
     @Transactional
