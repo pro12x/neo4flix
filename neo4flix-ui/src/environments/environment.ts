@@ -12,5 +12,5 @@ export const environment = {
    * Base URL of the API Gateway.
    * In dev with Docker, this is typically http://localhost:1111
    */
-  apiBaseUrl: window.__env?.apiBaseUrl ?? 'http://localhost:1111',
+  apiBaseUrl: window.__env?.apiBaseUrl ?? 'http://0.0.0.0:1111',
 };
