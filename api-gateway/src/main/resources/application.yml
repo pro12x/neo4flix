@@ -56,7 +56,11 @@ spring:
       globalcors:
         cors-configurations:
           '[/**]':
-            allowedOrigins: "*"
+            allowedOrigins:
+              - "http://localhost:4200"
+              - "http://127.0.0.1:4200"
+              - "http://vps-665ee063.vps.ovh.ca:4200"
+              - "http://51.222.111.246:4200"
             allowedMethods:
               - GET
               - POST
