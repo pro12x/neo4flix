@@ -19,6 +19,7 @@ Thumbs.db
 node_modules/
 dist/
 .angular/
+package-lock.json
 
 # Build output (keep Maven wrapper)
 **/target/*.jar
