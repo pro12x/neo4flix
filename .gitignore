@@ -1,0 +1,12 @@
+.idea
+.vscode
+.env
+target/
+**/target/
+*.log
+**/*.log
+.DS_Store
+node_modules/
+**/node_modules/
+docs
+logs

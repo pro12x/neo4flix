@@ -1,0 +1,143 @@
+spring:
+  config:
+    import: optional:file:.env[.properties]
+
+  application:
+    name: api-gateway
+
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+  cloud:
+    gateway:
+      # Preserve Authorization header and other headers
+      default-filters:
+        - PreserveHostHeader
+
+      # Don't remove any headers (including Authorization)
+      sensitive-headers:
+
+      routes:
+        # User Service Routes - Auth
+        - id: user-service-auth
+          uri: lb://user-service
+          predicates:
+            - Path=/api/v1/auth/**
+
+        # User Service Routes - Users
+        - id: user-service-users
+          uri: lb://user-service
+          predicates:
+            - Path=/api/v1/users/**
+
+        # Movie Service Routes
+        - id: movie-service
+          uri: lb://movie-service
+          predicates:
+            - Path=/api/v1/movies/**
+
+        # Rating Service Routes
+        - id: rating-service
+          uri: lb://rating-service
+          predicates:
+            - Path=/api/v1/ratings/**
+
+        # Recommendation Service Routes
+        - id: recommendation-service
+          uri: lb://recommendation-service
+          predicates:
+            - Path=/api/v1/recommendations/**
+
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+server:
+  port: ${API_GATEWAY_PORT:1111}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
+
+management:
+  health:
+    neo4j:
+      enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      userServiceCircuitBreaker:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 10s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+      movieServiceCircuitBreaker:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 10s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+      ratingServiceCircuitBreaker:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 10s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+      recommendationServiceCircuitBreaker:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 10s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+  timelimiter:
+    instances:
+      userServiceCircuitBreaker:
+        timeoutDuration: 3s
+      movieServiceCircuitBreaker:
+        timeoutDuration: 3s
+      ratingServiceCircuitBreaker:
+        timeoutDuration: 3s
+      recommendationServiceCircuitBreaker:
+        timeoutDuration: 5s
+
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO
+    reactor.netty: INFO
+    com.codinggoline.apigateway: DEBUG
+
+# JWT Configuration (must match user-service)
+jwt:
+  # Use the same default as user-service to avoid signature mismatch
+  secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970337336763979244226452948404D6351}
+  expiration: 86400000
+

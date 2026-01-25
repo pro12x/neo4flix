@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: api-gateway
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      userServiceCircuitBreaker:
+        waitDurationInOpenState: 30s
+      movieServiceCircuitBreaker:
+        waitDurationInOpenState: 30s
+      ratingServiceCircuitBreaker:
+        waitDurationInOpenState: 30s
+      recommendationServiceCircuitBreaker:
+        waitDurationInOpenState: 30s
+
+logging:
+  level:
+    org.springframework.cloud.gateway: WARN
+    reactor.netty: WARN
+    com.codinggoline.apigateway: INFO
+    io.github.resilience4j: WARN

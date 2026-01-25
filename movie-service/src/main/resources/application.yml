@@ -1,0 +1,46 @@
+spring:
+    config:
+        import: optional:file:.env[.properties]
+
+    application:
+        name: movie-service
+
+    web:
+        resources:
+            add-mappings: false
+
+    profiles:
+        active: ${SPRING_PROFILES_ACTIVE:dev}
+
+    neo4j:
+        uri: ${NEO4J_URI:neo4j+s://102e8ac6.databases.neo4j.io}
+        authentication:
+            username: ${NEO4J_USERNAME:neo4j}
+            password: ${NEO4J_PASSWORD:W4SjykLHaAmtTL307vWx5tZQ0ARIyacdWlI8ZOcIm6U}
+
+server:
+    port: ${MOVIE_SERVICE_PORT:1113}
+
+# JWT Configuration
+jwt:
+    secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970337336763979244226452948404D6351}
+
+eureka:
+    client:
+        service-url:
+            defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
+        register-with-eureka: true
+        fetch-registry: true
+    instance:
+        prefer-ip-address: true
+        lease-renewal-interval-in-seconds: 10
+
+management:
+    endpoints:
+        web:
+            exposure:
+                include: health,info,metrics
+    endpoint:
+        health:
+            show-details: always
+

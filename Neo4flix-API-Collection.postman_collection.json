@@ -1,0 +1,257 @@
+{
+  "info": {
+    "name": "Neo4flix API Collection",
+    "description": "Complete API collection for Neo4flix Movie Recommendation System",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "User Service",
+      "item": [
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"pseudo\": \"johndoe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"SecurePass123!\",\n  \"role\": \"USER\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:1112/api/v1/users",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "1112",
+              "path": ["api", "v1", "users"]
+            }
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:1112/api/v1/users/{{userId}}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "1112",
+              "path": ["api", "v1", "users", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:1112/api/v1/users",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "1112",
+              "path": ["api", "v1", "users"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Movie Service",
+      "item": [
+        {
+          "name": "Create Movie",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"The Matrix\",\n  \"releaseDate\": \"1999-03-31\",\n  \"plot\": \"A computer hacker learns about the true nature of reality and his role in the war against its controllers.\",\n  \"poster\": \"https://example.com/matrix.jpg\",\n  \"imdbId\": \"tt0133093\",\n  \"genres\": [\"Action\", \"Sci-Fi\"]\n}"
+            },
+            "url": {
+              "raw": "http://localhost:1113/api/v1/movies",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "1113",
+              "path": ["api", "v1", "movies"]
+            }
+          }
+        },
+        {
+          "name": "Search Movies",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:1113/api/v1/movies/search?title=matrix",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "1113",
+              "path": ["api", "v1", "movies", "search"],
+              "query": [
+                {
+                  "key": "title",
+                  "value": "matrix"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Latest Movies",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:1113/api/v1/movies/latest?limit=10",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "1113",
+              "path": ["api", "v1", "movies", "latest"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rating Service",
+      "item": [
+        {
+          "name": "Create Rating",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"movieId\": \"{{movieId}}\",\n  \"rating\": 4.5,\n  \"review\": \"Great movie! Highly recommended.\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:1114/api/v1/ratings",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "1114",
+              "path": ["api", "v1", "ratings"]
+            }
+          }
+        },
+        {
+          "name": "Get User Ratings",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:1114/api/v1/ratings/user/{{userId}}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "1114",
+              "path": ["api", "v1", "ratings", "user", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Movie Average Rating",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:1114/api/v1/ratings/movie/{{movieId}}/average",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "1114",
+              "path": ["api", "v1", "ratings", "movie", "{{movieId}}", "average"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Recommendation Service",
+      "item": [
+        {
+          "name": "Get Personalized Recommendations",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:1115/api/v1/recommendations/user/{{userId}}?limit=10",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "1115",
+              "path": ["api", "v1", "recommendations", "user", "{{userId}}"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Collaborative Recommendations",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:1115/api/v1/recommendations/user/{{userId}}/collaborative?limit=10",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "1115",
+              "path": ["api", "v1", "recommendations", "user", "{{userId}}", "collaborative"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Similar Movies",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:1115/api/v1/recommendations/movie/{{movieId}}/similar?limit=5",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "1115",
+              "path": ["api", "v1", "recommendations", "movie", "{{movieId}}", "similar"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "userId",
+      "value": "user-uuid-here",
+      "type": "string"
+    },
+    {
+      "key": "movieId",
+      "value": "movie-uuid-here",
+      "type": "string"
+    }
+  ]
+}

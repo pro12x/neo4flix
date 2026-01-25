@@ -1,0 +1,239 @@
+services:
+    # Neo4j Database
+    neo4j:
+        image: neo4j:latest
+        container_name: ${APP_NAME}-neo4j
+        restart: unless-stopped
+        ports:
+            - "7474:7474"
+            - "7687:7687"
+        environment:
+            - NEO4J_AUTH=${NEO4J_USERNAME}/${NEO4J_PASSWORD}
+            - NEO4J_PLUGINS=["apoc"]
+            - NEO4J_dbms_security_procedures_unrestricted=apoc.*
+        volumes:
+            - neo4j_data:/data
+            - neo4j_logs:/logs
+        networks:
+            - backend-network
+        healthcheck:
+            test: wget --quiet --tries=1 --spider http://localhost:7474 || exit 1
+            interval: 10s
+            timeout: 10s
+            retries: 5
+            start_period: 30s
+
+    # Eureka Service Discovery
+    eureka-server:
+        build:
+            context: ./eureka-server
+            dockerfile: Dockerfile
+        container_name: ${APP_NAME}-eureka-server
+        restart: unless-stopped
+        ports:
+            - "${EUREKA_SERVER_PORT}:${EUREKA_SERVER_PORT}"
+        environment:
+            - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+            - EUREKA_SERVER_PORT=${EUREKA_SERVER_PORT}
+            - EUREKA_HOSTNAME=eureka-server
+        networks:
+            - backend-network
+        healthcheck:
+            test: curl -f http://localhost:${EUREKA_SERVER_PORT}/actuator/health || exit 1
+            interval: 15s
+            timeout: 10s
+            retries: 5
+            start_period: 40s
+
+    # API Gateway
+    api-gateway:
+        build:
+            context: ./api-gateway
+            dockerfile: Dockerfile
+        container_name: ${APP_NAME}-api-gateway
+        restart: unless-stopped
+        ports:
+            - "${API_GATEWAY_PORT}:${API_GATEWAY_PORT}"
+        environment:
+            - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+            - API_GATEWAY_PORT=${API_GATEWAY_PORT}
+            - EUREKA_SERVER_URL=http://eureka-server:${EUREKA_SERVER_PORT}/eureka/
+        networks:
+            - backend-network
+        depends_on:
+            eureka-server:
+                condition: service_healthy
+        healthcheck:
+            test: curl -f http://localhost:${API_GATEWAY_PORT}/actuator/health || exit 1
+            interval: 15s
+            timeout: 10s
+            retries: 5
+            start_period: 45s
+
+    # User Microservice
+    user-service:
+        build:
+            context: ./user-service
+            dockerfile: Dockerfile
+        container_name: ${APP_NAME}-user-service
+        restart: unless-stopped
+        ports:
+            - "${USER_SERVICE_PORT}:${USER_SERVICE_PORT}"
+        environment:
+            - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+            - NEO4J_URI=${NEO4J_URI}
+            - NEO4J_USERNAME=${NEO4J_USERNAME}
+            - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+            - USER_SERVICE_PORT=${USER_SERVICE_PORT}
+            - EUREKA_SERVER_URL=http://eureka-server:${EUREKA_SERVER_PORT}/eureka/
+        networks:
+            - backend-network
+        depends_on:
+            neo4j:
+                condition: service_healthy
+            eureka-server:
+                condition: service_healthy
+
+    # Movie Microservice
+    movie-service:
+        build:
+            context: ./movie-service
+            dockerfile: Dockerfile
+        container_name: ${APP_NAME}-movie-service
+        restart: unless-stopped
+        ports:
+            - "${MOVIE_SERVICE_PORT}:${MOVIE_SERVICE_PORT}"
+        environment:
+            - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+            - NEO4J_URI=${NEO4J_URI}
+            - NEO4J_USERNAME=${NEO4J_USERNAME}
+            - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+            - MOVIE_SERVICE_PORT=${MOVIE_SERVICE_PORT}
+            - EUREKA_SERVER_URL=http://eureka-server:${EUREKA_SERVER_PORT}/eureka/
+        networks:
+            - backend-network
+        depends_on:
+            neo4j:
+                condition: service_healthy
+            eureka-server:
+                condition: service_healthy
+
+    # Rating Microservice
+    rating-service:
+        build:
+            context: ./rating-service
+            dockerfile: Dockerfile
+        container_name: ${APP_NAME}-rating-service
+        restart: unless-stopped
+        ports:
+            - "${RATING_SERVICE_PORT}:${RATING_SERVICE_PORT}"
+        environment:
+            - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+            - NEO4J_URI=${NEO4J_URI}
+            - NEO4J_USERNAME=${NEO4J_USERNAME}
+            - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+            - RATING_SERVICE_PORT=${RATING_SERVICE_PORT}
+            - EUREKA_SERVER_URL=http://eureka-server:${EUREKA_SERVER_PORT}/eureka/
+        networks:
+            - backend-network
+        depends_on:
+            neo4j:
+                condition: service_healthy
+            eureka-server:
+                condition: service_healthy
+
+    # Recommendation Microservice
+    recommendation-service:
+        build:
+            context: ./recommendation-service
+            dockerfile: Dockerfile
+        container_name: ${APP_NAME}-recommendation-service
+        restart: unless-stopped
+        ports:
+            - "${RECOMMENDATION_SERVICE_PORT}:${RECOMMENDATION_SERVICE_PORT}"
+        environment:
+            - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+            - NEO4J_URI=${NEO4J_URI}
+            - NEO4J_USERNAME=${NEO4J_USERNAME}
+            - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+            - RECOMMENDATION_SERVICE_PORT=${RECOMMENDATION_SERVICE_PORT}
+            - EUREKA_SERVER_URL=http://eureka-server:${EUREKA_SERVER_PORT}/eureka/
+        networks:
+            - backend-network
+        depends_on:
+            neo4j:
+                condition: service_healthy
+            eureka-server:
+                condition: service_healthy
+
+    # MongoDB (Optional - for additional features)
+    mongodb:
+        image: mongo:latest
+        container_name: ${APP_NAME}-mongodb
+        restart: unless-stopped
+        volumes:
+            - mongodb_data:/data/db
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=${DB_USERNAME}
+            - MONGO_INITDB_ROOT_PASSWORD=${DB_PASSWORD}
+            - MONGO_INITDB_DATABASE=${DB_NAME}
+        networks:
+            - backend-network
+        healthcheck:
+            test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
+            interval: 10s
+            timeout: 10s
+            retries: 2
+            start_period: 15s
+
+    # Zookeeper (for Kafka)
+    zookeeper:
+        image: zookeeper:latest
+        container_name: ${APP_NAME}-zookeeper
+        restart: unless-stopped
+        environment:
+            - ZOOKEEPER_CLIENT_PORT=${ZOOKEEPER_CLIENT_PORT}
+            - ZOOKEEPER_TICK_TIME=${ZOOKEEPER_TICK_TIME}
+        networks:
+            - backend-network
+        healthcheck:
+            test: echo stat | nc localhost ${ZOOKEEPER_CLIENT_PORT}
+            interval: 10s
+            timeout: 10s
+            retries: 2
+            start_period: 10s
+
+    # Kafka (for messaging)
+    kafka:
+        image: confluentinc/cp-kafka:7.5.0
+        container_name: ${APP_NAME}-kafka
+        restart: unless-stopped
+        depends_on:
+            zookeeper:
+                condition: service_healthy
+        ports:
+            - "${KAFKA_PORT}:${KAFKA_PORT}"
+        environment:
+            KAFKA_BROKER_ID: 1
+            KAFKA_ZOOKEEPER_CONNECT: zookeeper:${ZOOKEEPER_CLIENT_PORT}
+            KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:${KAFKA_PORT}
+            KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+            KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+            KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+        networks:
+            - backend-network
+        healthcheck:
+            test: kafka-broker-api-versions --bootstrap-server localhost:${KAFKA_PORT} || exit 1
+            interval: 10s
+            timeout: 10s
+            retries: 2
+            start_period: 15s
+
+volumes:
+    neo4j_data:
+    neo4j_logs:
+    mongodb_data:
+
+networks:
+    backend-network:
+        driver: bridge

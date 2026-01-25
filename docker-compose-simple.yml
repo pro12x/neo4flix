@@ -1,0 +1,145 @@
+services:
+    # Eureka Service Discovery
+    eureka-server:
+        build:
+            context: ./eureka-server
+            dockerfile: Dockerfile
+        container_name: ${APP_NAME}-eureka-server
+        restart: unless-stopped
+        ports:
+            - "${EUREKA_SERVER_PORT}:${EUREKA_SERVER_PORT}"
+        environment:
+            - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+            - EUREKA_SERVER_PORT=${EUREKA_SERVER_PORT}
+            - EUREKA_HOSTNAME=eureka-server
+        networks:
+            - backend-network
+        healthcheck:
+            test: wget --quiet --tries=1 --spider http://localhost:${EUREKA_SERVER_PORT}/actuator/health || exit 1
+            interval: 15s
+            timeout: 10s
+            retries: 5
+            start_period: 40s
+
+    # API Gateway
+    api-gateway:
+        build:
+            context: ./api-gateway
+            dockerfile: Dockerfile
+        container_name: ${APP_NAME}-api-gateway
+        restart: unless-stopped
+        ports:
+            - "${API_GATEWAY_PORT}:${API_GATEWAY_PORT}"
+        environment:
+            - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+            - API_GATEWAY_PORT=${API_GATEWAY_PORT}
+            - EUREKA_SERVER_URL=http://eureka-server:${EUREKA_SERVER_PORT}/eureka/
+        networks:
+            - backend-network
+        depends_on:
+            eureka-server:
+                condition: service_healthy
+        healthcheck:
+            test: wget --quiet --tries=1 --spider http://localhost:${API_GATEWAY_PORT}/actuator/health || exit 1
+            interval: 15s
+            timeout: 10s
+            retries: 5
+            start_period: 45s
+
+    # User Microservice
+    user-service:
+        build:
+            context: ./user-service
+            dockerfile: Dockerfile
+        container_name: ${APP_NAME}-user-service
+        restart: unless-stopped
+        ports:
+            - "${USER_SERVICE_PORT}:${USER_SERVICE_PORT}"
+        environment:
+            - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+            - NEO4J_URI=${NEO4J_URI}
+            - NEO4J_USERNAME=${NEO4J_USERNAME}
+            - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+            - USER_SERVICE_PORT=${USER_SERVICE_PORT}
+            - EUREKA_SERVER_URL=http://eureka-server:${EUREKA_SERVER_PORT}/eureka/
+            - JWT_SECRET=${JWT_SECRET}
+            - JWT_EXPIRATION=${JWT_EXPIRATION}
+            - JWT_REFRESH_EXPIRATION=${JWT_REFRESH_EXPIRATION}
+        networks:
+            - backend-network
+        depends_on:
+            eureka-server:
+                condition: service_healthy
+
+    # Movie Microservice
+    movie-service:
+        build:
+            context: ./movie-service
+            dockerfile: Dockerfile
+        container_name: ${APP_NAME}-movie-service
+        restart: unless-stopped
+        ports:
+            - "${MOVIE_SERVICE_PORT}:${MOVIE_SERVICE_PORT}"
+        environment:
+            - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+            - NEO4J_URI=${NEO4J_URI}
+            - NEO4J_USERNAME=${NEO4J_USERNAME}
+            - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+            - MOVIE_SERVICE_PORT=${MOVIE_SERVICE_PORT}
+            - EUREKA_SERVER_URL=http://eureka-server:${EUREKA_SERVER_PORT}/eureka/
+            - JWT_SECRET=${JWT_SECRET}
+        networks:
+            - backend-network
+        depends_on:
+            eureka-server:
+                condition: service_healthy
+
+    # Rating Microservice
+    rating-service:
+        build:
+            context: ./rating-service
+            dockerfile: Dockerfile
+        container_name: ${APP_NAME}-rating-service
+        restart: unless-stopped
+        ports:
+            - "${RATING_SERVICE_PORT}:${RATING_SERVICE_PORT}"
+        environment:
+            - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+            - NEO4J_URI=${NEO4J_URI}
+            - NEO4J_USERNAME=${NEO4J_USERNAME}
+            - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+            - RATING_SERVICE_PORT=${RATING_SERVICE_PORT}
+            - EUREKA_SERVER_URL=http://eureka-server:${EUREKA_SERVER_PORT}/eureka/
+            - JWT_SECRET=${JWT_SECRET}
+        networks:
+            - backend-network
+        depends_on:
+            eureka-server:
+                condition: service_healthy
+
+    # Recommendation Microservice
+    recommendation-service:
+        build:
+            context: ./recommendation-service
+            dockerfile: Dockerfile
+        container_name: ${APP_NAME}-recommendation-service
+        restart: unless-stopped
+        ports:
+            - "${RECOMMENDATION_SERVICE_PORT}:${RECOMMENDATION_SERVICE_PORT}"
+        environment:
+            - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+            - NEO4J_URI=${NEO4J_URI}
+            - NEO4J_USERNAME=${NEO4J_USERNAME}
+            - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+            - RECOMMENDATION_SERVICE_PORT=${RECOMMENDATION_SERVICE_PORT}
+            - EUREKA_SERVER_URL=http://eureka-server:${EUREKA_SERVER_PORT}/eureka/
+            - JWT_SECRET=${JWT_SECRET}
+        networks:
+            - backend-network
+        depends_on:
+            eureka-server:
+                condition: service_healthy
+
+networks:
+    backend-network:
+        driver: bridge

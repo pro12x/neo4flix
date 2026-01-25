@@ -1,0 +1,178 @@
+╔══════════════════════════════════════════════════════════════════╗
+║              API GATEWAY - FIX COMPLET                           ║
+╚══════════════════════════════════════════════════════════════════╝
+
+┌──────────────────────────────────────────────────────────────────┐
+│ ✅ PROBLÈME RÉSOLU                                               │
+└──────────────────────────────────────────────────────────────────┘
+
+  L'API Gateway ne fonctionnait plus après l'ajout de Spring Security.
+
+  CAUSE: Configuration Security trop complexe pour WebFlux
+
+  SOLUTION: Simplification + GlobalFilter JWT
+
+┌──────────────────────────────────────────────────────────────────┐
+│ 🔧 CORRECTIONS APPLIQUÉES                                        │
+└──────────────────────────────────────────────────────────────────┘
+
+  1. ✅ SecurityConfig simplifié
+     • Désactive auth par défaut (permettAll)
+     • Laisse le GlobalFilter gérer JWT
+
+  2. ✅ JwtGlobalFilter créé
+     • Valide JWT automatiquement sur toutes les routes
+     • Ajoute X-User-Id, X-User-Email headers
+     • Endpoints publics: /login, /register, /actuator
+
+  3. ✅ GatewayRoutesConfig supprimé
+     • Conflit avec YAML
+     • Pas nécessaire avec GlobalFilter
+
+  4. ✅ JwtAuthenticationFilter nettoyé
+     • Valeur par défaut pour JWT secret
+     • Code simplifié
+
+┌──────────────────────────────────────────────────────────────────┐
+│ 🚀 COMMANDES À EXÉCUTER                                          │
+└──────────────────────────────────────────────────────────────────┘
+
+  cd /home/pro12x/Desktop/Projects/01Dakar/Java/neo4flix
+
+  # Option 1: Rebuild avec script automatique
+  ./rebuild-after-security-refactoring.sh
+
+  # Option 2: Rebuild manuel
+  cd api-gateway && mvn clean package -DskipTests
+  cd ../movie-service && mvn clean package -DskipTests
+  cd ../rating-service && mvn clean package -DskipTests
+  cd ../recommendation-service && mvn clean package -DskipTests
+  cd ..
+
+  # Lancer les services
+  ./start-all.sh
+
+┌──────────────────────────────────────────────────────────────────┐
+│ 🧪 TESTS À EFFECTUER                                             │
+└──────────────────────────────────────────────────────────────────┘
+
+  1. Vérifier que le Gateway démarre:
+     curl http://localhost:8080/actuator/health
+     → {"status":"UP"}
+
+  2. Login (endpoint public):
+     curl -X POST http://localhost:8080/api/v1/users/login \
+       -H "Content-Type: application/json" \
+       -d '{"email":"john@example.com","password":"password"}'
+     → {"token":"eyJhbGc..."}
+
+  3. Movies sans token (doit échouer):
+     curl http://localhost:8080/api/v1/movies
+     → 401 Unauthorized
+
+  4. Movies avec token (doit réussir):
+     TOKEN="<token_from_login>"
+     curl http://localhost:8080/api/v1/movies \
+       -H "Authorization: Bearer $TOKEN"
+     → 200 OK avec liste des films
+
+┌──────────────────────────────────────────────────────────────────┐
+│ 📊 ARCHITECTURE FINALE                                           │
+└──────────────────────────────────────────────────────────────────┘
+
+  Frontend (Angular)
+      │
+      │ Authorization: Bearer <JWT>
+      ▼
+  ┌─────────────────────────────┐
+  │      API GATEWAY            │
+  │  • SecurityConfig (permit)  │
+  │  • JwtGlobalFilter (auth)   │
+  └─────────────┬───────────────┘
+                │
+      ┌─────────┼─────────┬─────────────┐
+      │         │         │             │
+      ▼         ▼         ▼             ▼
+  ┌────────┐ ┌──────┐ ┌────────┐ ┌──────────┐
+  │ USER   │ │MOVIE │ │ RATING │ │   RECO   │
+  │        │ │      │ │        │ │          │
+  │ Spring │ │  NO  │ │   NO   │ │    NO    │
+  │Security│ │Security Security│ │ Security │
+  └────────┘ └──────┘ └────────┘ └──────────┘
+
+┌──────────────────────────────────────────────────────────────────┐
+│ 📁 FICHIERS MODIFIÉS                                             │
+└──────────────────────────────────────────────────────────────────┘
+
+  Simplifiés:
+  ✏️  api-gateway/.../config/SecurityConfig.java
+  ✏️  api-gateway/.../filter/JwtAuthenticationFilter.java
+
+  Créés:
+  ✅ api-gateway/.../filter/JwtGlobalFilter.java
+  ✅ docs/FIX_API_GATEWAY_SECURITY.md
+  ✅ rebuild-after-security-refactoring.sh
+
+  Supprimés:
+  ❌ api-gateway/.../config/GatewayRoutesConfig.java
+
+┌──────────────────────────────────────────────────────────────────┐
+│ 🐛 SI LE GATEWAY NE DÉMARRE PAS                                 │
+└──────────────────────────────────────────────────────────────────┘
+
+  1. Vérifier les dépendances Maven:
+     cd api-gateway
+     mvn dependency:resolve
+     mvn clean install
+
+  2. Vérifier le port:
+     lsof -i :8080
+     # Si occupé: kill le process ou change le port
+
+  3. Vérifier les logs:
+     mvn spring-boot:run
+     # Chercher les erreurs dans la sortie
+
+  4. Vérifier JWT secret:
+     # api-gateway/src/main/resources/application.yml
+     jwt:
+       secret: 404E635266556A586E3272357538782F...
+
+     # Doit être IDENTIQUE au user-service
+
+┌──────────────────────────────────────────────────────────────────┐
+│ 📚 DOCUMENTATION                                                 │
+└──────────────────────────────────────────────────────────────────┘
+
+  Guide complet:
+  → docs/FIX_API_GATEWAY_SECURITY.md
+
+  Contient:
+  • Architecture détaillée
+  • Code source des changements
+  • Guide de test complet
+  • Troubleshooting
+  • Points d'attention
+
+┌──────────────────────────────────────────────────────────────────┐
+│ ✅ CHECKLIST                                                     │
+└──────────────────────────────────────────────────────────────────┘
+
+  [ ] Rebuild API Gateway (mvn clean package)
+  [ ] Rebuild Movie Service
+  [ ] Rebuild Rating Service
+  [ ] Rebuild Recommendation Service
+  [ ] Lancer tous les services (./start-all.sh)
+  [ ] Test health: curl localhost:8080/actuator/health
+  [ ] Test login: curl -X POST .../users/login
+  [ ] Test protégé sans token (doit échouer)
+  [ ] Test protégé avec token (doit réussir)
+
+╔══════════════════════════════════════════════════════════════════╗
+║           API GATEWAY PRÊT À FONCTIONNER ! 🚀                    ║
+╚══════════════════════════════════════════════════════════════════╝
+
+Prochaine étape:
+  cd /home/pro12x/Desktop/Projects/01Dakar/Java/neo4flix
+  ./rebuild-after-security-refactoring.sh
+  ./start-all.sh

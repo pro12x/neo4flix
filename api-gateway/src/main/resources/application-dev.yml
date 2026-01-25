@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: api-gateway
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    reactor.netty: DEBUG
+    com.codinggoline.apigateway: DEBUG
+    io.github.resilience4j: DEBUG

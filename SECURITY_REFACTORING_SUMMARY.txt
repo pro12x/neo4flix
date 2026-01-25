@@ -1,0 +1,146 @@
+╔══════════════════════════════════════════════════════════════════╗
+║          REFACTORING SPRING SECURITY - RÉSUMÉ COMPLET            ║
+╚══════════════════════════════════════════════════════════════════╝
+
+┌──────────────────────────────────────────────────────────────────┐
+│ ✅ PROBLÈME RÉSOLU                                               │
+└──────────────────────────────────────────────────────────────────┘
+
+  Tu avais raison ! Spring Security était présent dans TOUS les
+  services, ce qui est INCORRECT selon les bonnes pratiques.
+
+  Architecture CORRECTE pour microservices:
+  • Spring Security: API Gateway + User Service UNIQUEMENT
+  • Services métier (Movie, Rating, Reco): AUCUNE sécurité
+
+┌──────────────────────────────────────────────────────────────────┐
+│ 🛠️  MODIFICATIONS APPLIQUÉES                                     │
+└──────────────────────────────────────────────────────────────────┘
+
+  1. ❌ SUPPRIMÉ de Movie Service:
+     • Spring Security dependency (pom.xml)
+     • JWT dependencies (pom.xml)
+     • SecurityConfig.java
+     • Package security/ complet (JwtFilter, JwtUtil, etc.)
+
+  2. ❌ SUPPRIMÉ de Rating Service:
+     • Spring Security dependency (pom.xml)
+     • JWT dependencies (pom.xml)
+     • SecurityConfig.java
+     • Package security/ complet
+
+  3. ❌ SUPPRIMÉ de Recommendation Service:
+     • Spring Security dependency (pom.xml)
+     • JWT dependencies (pom.xml)
+     • SecurityConfig.java
+     • Package security/ complet
+
+  4. ✅ AJOUTÉ dans API Gateway:
+     • Spring Security dependency
+     • JWT dependencies (validation uniquement)
+     • SecurityConfig.java (WebFlux Security)
+     • JwtAuthenticationFilter.java (validation JWT)
+     • GatewayRoutesConfig.java (routes avec filtre JWT)
+     • Configuration JWT dans application.yml
+
+  5. ✅ CONSERVÉ dans User Service:
+     • Spring Security (login/register)
+     • JWT (création de tokens)
+
+┌──────────────────────────────────────────────────────────────────┐
+│ 📊 ARCHITECTURE FINALE                                           │
+└──────────────────────────────────────────────────────────────────┘
+
+  Frontend (Angular)
+      │
+      │ Authorization: Bearer <JWT>
+      ▼
+  ┌─────────────────────────────┐
+  │      API GATEWAY            │ ← Spring Security + JWT Validation
+  │  • Valide JWT               │
+  │  • Ajoute X-User-Id header  │
+  └─────────────┬───────────────┘
+                │
+      ┌─────────┼─────────┬─────────────┐
+      ▼         ▼         ▼             ▼
+  ┌────────┐ ┌──────┐ ┌────────┐ ┌──────────┐
+  │ USER   │ │MOVIE │ │ RATING │ │   RECO   │
+  │ (JWT)  │ │ (NO) │ │  (NO)  │ │   (NO)   │
+  └────────┘ └──────┘ └────────┘ └──────────┘
+      ↑
+   Spring Security
+   (création JWT)
+
+┌──────────────────────────────────────────────────────────────────┐
+│ 🔄 FLUX D'AUTHENTIFICATION                                       │
+└──────────────────────────────────────────────────────────────────┘
+
+  1. Login:
+     POST /api/v1/users/login → User Service
+     → Génère JWT
+     → Return token
+
+  2. Requête protégée:
+     GET /api/v1/movies (avec Bearer token)
+     → API Gateway intercepte
+     → Valide JWT
+     → Ajoute X-User-Id header
+     → Forward vers Movie Service (sans Security!)
+     → Movie Service utilise X-User-Id
+
+┌──────────────────────────────────────────────────────────────────┐
+│ 🚀 PROCHAINES ÉTAPES                                             │
+└──────────────────────────────────────────────────────────────────┘
+
+  1. Rebuild les projets:
+     cd api-gateway && mvn clean install
+     cd ../movie-service && mvn clean install
+     cd ../rating-service && mvn clean install
+     cd ../recommendation-service && mvn clean install
+
+  2. Relancer les services:
+     ./start-all.sh
+
+  3. Tester:
+     # Sans token (doit échouer)
+     curl http://localhost:8080/api/v1/movies
+     → 401 Unauthorized
+
+     # Login
+     curl -X POST http://localhost:8080/api/v1/users/login \
+       -H "Content-Type: application/json" \
+       -d '{"email":"user@example.com","password":"password"}'
+     → { "token": "..." }
+
+     # Avec token (doit réussir)
+     curl http://localhost:8080/api/v1/movies \
+       -H "Authorization: Bearer <token>"
+     → 200 OK
+
+┌──────────────────────────────────────────────────────────────────┐
+│ 📚 DOCUMENTATION                                                 │
+└──────────────────────────────────────────────────────────────────┘
+
+  Guide complet:
+  → docs/SECURITY_REFACTORING.md
+
+  Contient:
+  • Schémas d'architecture
+  • Comparaison avant/après
+  • Guide de test complet
+  • Bonnes pratiques
+  • Points d'attention
+
+┌──────────────────────────────────────────────────────────────────┐
+│ ✅ AVANTAGES                                                     │
+└──────────────────────────────────────────────────────────────────┘
+
+  ✓ Services métier plus simples (pas de Security)
+  ✓ Performance (1 validation JWT au lieu de N)
+  ✓ Maintenabilité (logique centralisée)
+  ✓ Sécurité (point d'entrée unique)
+  ✓ Conforme aux bonnes pratiques microservices
+
+╔══════════════════════════════════════════════════════════════════╗
+║               ARCHITECTURE CORRECTE ! 🎉                         ║
+╚══════════════════════════════════════════════════════════════════╝

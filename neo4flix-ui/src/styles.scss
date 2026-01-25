@@ -1,0 +1,26 @@
+/* You can add global styles to this file, and also import other style files */
+:root {
+  --primary-color: #e50914; /* Netflix Red */
+  --background-color: #141414; /* Netflix Black */
+  --text-color: #ffffff;
+  --text-color-secondary: #a0a0a0;
+  --card-background: #222222;
+  --header-background: #181818;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-family: 'Montserrat', sans-serif;
+}
+
+a {
+  color: var(--text-color);
+  text-decoration: none;
+}

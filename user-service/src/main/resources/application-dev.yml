@@ -1,0 +1,7 @@
+spring:
+    neo4j:
+        uri: ${NEO4J_URI:neo4j+s://102e8ac6.databases.neo4j.io}
+        authentication:
+            username: ${NEO4J_USERNAME:neo4j}
+            password: ${NEO4J_PASSWORD:W4SjykLHaAmtTL307vWx5tZQ0ARIyacdWlI8ZOcIm6U}
+
