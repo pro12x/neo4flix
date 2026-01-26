@@ -2,6 +2,7 @@ package com.codinggoline.userservice.controller;
 
 import com.codinggoline.userservice.dto.*;
 import com.codinggoline.userservice.service.AuthService;
+import com.codinggoline.userservice.service.TwoFactorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ import java.util.Map;
 public class AuthController {
 
     private final AuthService authService;
+    private final TwoFactorService twoFactorService;
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
@@ -28,10 +30,51 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<Map<String, Object>> login(@Valid @RequestBody LoginRequest request) {
         log.info("Login request received for email: {}", request.getEmail());
-        AuthResponse response = authService.login(request);
+        // Perform authentication and return either token or require 2FA
+        Map<String, Object> result = authService.loginWithPossible2Fa(request);
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/verify-2fa")
+    public ResponseEntity<AuthResponse> verify2Fa(@RequestBody Verify2FaRequest request) {
+        log.info("2FA verification for user: {}", request.getEmail());
+        AuthResponse response = authService.verify2Fa(request);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/2fa/setup")
+    public ResponseEntity<Map<String, String>> setup2Fa(@RequestBody Map<String, String> body) {
+        try {
+            String email = body.get("email");
+            log.info("2FA setup request for email: {}", email);
+            if (email == null || email.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Email is required"));
+            }
+            String secret = twoFactorService.generateSecret();
+            String uri = twoFactorService.getOtpAuthUri(secret, email, "Neo4Flix");
+            // Save secret temporarily in DB as not enabled until user verifies
+            authService.saveTwoFactorSecret(email, secret);
+            log.info("2FA setup successful for email: {}", email);
+            return ResponseEntity.ok(Map.of("secret", secret, "otpauth_uri", uri));
+        } catch (Exception e) {
+            log.error("Error in 2FA setup", e);
+            return ResponseEntity.status(500).body(Map.of("error", "Internal server error"));
+        }
+    }
+
+    @PostMapping("/2fa/enable")
+    public ResponseEntity<Map<String, Object>> enable2Fa(@RequestBody Verify2FaRequest request) {
+        authService.enableTwoFactorForUser(request.getEmail(), request.getCode());
+        return ResponseEntity.ok(Map.of("enabled", true));
+    }
+
+    @PostMapping("/2fa/disable")
+    public ResponseEntity<Map<String, Object>> disable2Fa(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        authService.disableTwoFactorForUser(email);
+        return ResponseEntity.ok(Map.of("enabled", false));
     }
 
     @PostMapping("/refresh")
@@ -66,8 +109,6 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<Map<String, String>> logout() {
         log.info("Logout request received");
-        // In a stateless JWT system, logout is handled client-side by removing the token
-        // For server-side logout, you would need to implement token blacklisting
         return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
     }
 }

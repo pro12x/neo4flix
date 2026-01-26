@@ -44,7 +44,7 @@ import { ToastService } from '../../services/toast.service';
               </div>
               <div class="movie-actions">
                 <button class="btn-icon" (click)="addToWatchlist(m.id)" title="Add to Watchlist"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14m-7-7h14"/></svg></button>
-                <a [routerLink]="['/movies', m.id]" class="btn-icon" title="More Info"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></a>
+                <a [routerLink]="['/movie', m.id]" class="btn-icon" title="More Info"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></a>
               </div>
             </div>
           </div>

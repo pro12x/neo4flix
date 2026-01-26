@@ -43,11 +43,15 @@ public class JwtGlobalFilter implements GlobalFilter, Ordered {
 
     private boolean isPublicPath(String path) {
         return path.contains("/auth/register") ||
-               path.contains("/auth/login") ||
-               path.contains("/users/register") ||
-               path.contains("/users/login") ||
-               path.contains("/actuator") ||
-               path.contains("/eureka");
+                path.contains("/auth/login") ||
+                path.contains("/users/register") ||
+                path.contains("/users/login") ||
+                path.contains("/actuator") ||
+                path.contains("/auth/verify-2fa") ||
+                path.contains("/auth/2fa/setup") ||
+                path.contains("/auth/2fa/enable") ||
+                path.contains("/auth/2fa/disable") ||
+                path.contains("/eureka");
     }
 
     private Mono<Void> onError(ServerWebExchange exchange, HttpStatus status) {

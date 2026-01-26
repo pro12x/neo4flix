@@ -31,11 +31,11 @@ import { ToastService } from '../../services/toast.service';
         <div class="ratings-list" *ngIf="!loading() && ratings().length > 0">
           <div class="rating-item" *ngFor="let r of ratings()">
             <div class="movie-details">
-              <a [routerLink]="['/movies', r.movieId]">
+              <a [routerLink]="['/movie', r.movieId]">
                 <img [src]="r.moviePoster" [alt]="r.movieTitle" class="movie-poster-small" *ngIf="r.moviePoster">
               </a>
               <div>
-                <a class="movie-title-link" [routerLink]="['/movies', r.movieId]">{{ r.movieTitle || 'Unknown Movie' }}</a>
+                <a class="movie-title-link" [routerLink]="['/movie', r.movieId]">{{ r.movieTitle || 'Unknown Movie' }}</a>
                 <div class="my-rating">You rated: ★ {{ r.rating }}</div>
                 <p class="my-review" *ngIf="r.review">{{ r.review }}</p>
               </div>

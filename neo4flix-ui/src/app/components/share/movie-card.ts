@@ -10,7 +10,7 @@ import { Movie } from '../../models/movie.model';
   imports: [CommonModule, RouterModule],
   template: `
     <a class="movie-card"
-       [routerLink]="['/movies', movie.id]"
+       [routerLink]="['/movie', movie.id]"
        (mouseenter)="isHovered.set(true)"
        (mouseleave)="isHovered.set(false)"
        [class.hovered]="isHovered()">
@@ -29,7 +29,7 @@ import { Movie } from '../../models/movie.model';
           <button class="btn-icon" type="button" (click)="watchlistAdd.emit()" aria-label="Add to watchlist">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14m-7-7h14"/></svg>
           </button>
-          <a [routerLink]="['/movies', movie.id]" class="btn-icon" aria-label="Details">
+          <a [routerLink]="['/movie', movie.id]" class="btn-icon" aria-label="Details">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
           </a>
         </div>

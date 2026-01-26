@@ -35,4 +35,7 @@ public class UserResponse {
 
     private LocalDateTime updatedAt;
 
+    // 2FA exposed flag only
+    private boolean twoFactorEnabled;
+
 }

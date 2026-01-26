@@ -32,6 +32,7 @@ public class UserMapper {
                 .email(user.getEmail())
                 .role(roleMapper.toString(user.getRole()))
                 .createdAt(user.getCreatedAt())
+                .twoFactorEnabled(user.isTwoFactorEnabled())
                 .build();
     }
 }

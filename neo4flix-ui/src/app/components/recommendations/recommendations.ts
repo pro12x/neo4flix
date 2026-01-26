@@ -37,7 +37,7 @@ import { ToastService } from '../../services/toast.service';
 
         <section class="results-grid" *ngIf="!loading() && recos().length > 0">
           <div class="movie-card" *ngFor="let r of recos()">
-            <a [routerLink]="['/movies', r.movie.id]">
+            <a [routerLink]="['/movie', r.movie.id]">
               <img [src]="r.movie.poster" [alt]="r.movie.title" class="movie-poster">
             </a>
             <div class="reco-reason" *ngIf="r.reason">

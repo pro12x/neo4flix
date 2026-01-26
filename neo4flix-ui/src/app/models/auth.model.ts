@@ -10,6 +10,7 @@ export interface User {
   lastConnection?: Date;
   createdAt: Date;
   updatedAt?: Date;
+  twoFactorEnabled?: boolean;
 }
 
 export interface LoginRequest {

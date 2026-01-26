@@ -11,45 +11,19 @@ import { ShareComponent } from './components/share/share';
 import { RegisterComponent } from './components/auth/register/register';
 import { LandingComponent } from './components/landing/landing.component';
 import { LoginComponent } from './components/auth/login/login';
+import { ProfileComponent } from './components/profile/profile';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent, canActivate: [guestGuard] },
   { path: 'login', component: LoginComponent, canActivate: [guestGuard] },
   { path: 'register', component: RegisterComponent, canActivate: [guestGuard] },
-  {
-    path: 'browse',
-    component: HomeComponent,
-    canActivate: [authGuard],
-  },
-  {
-    path: 'movies/:id',
-    component: MovieDetailsComponent,
-    canActivate: [authGuard],
-  },
-  {
-    path: 'search',
-    component: SearchComponent,
-    canActivate: [authGuard],
-  },
-  {
-    path: 'watchlist',
-    component: WatchlistComponent,
-    canActivate: [authGuard],
-  },
-  {
-    path: 'ratings',
-    component: RatingsComponent,
-    canActivate: [authGuard],
-  },
-  {
-    path: 'recommendations',
-    component: RecommendationsComponent,
-    canActivate: [authGuard],
-  },
-  {
-    path: 'share',
-    component: ShareComponent,
-    canActivate: [authGuard],
-  },
+  { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
+  { path: 'browse', component: HomeComponent, canActivate: [authGuard] },
+  { path: 'movie/:id', component: MovieDetailsComponent, canActivate: [authGuard] },
+  { path: 'search', component: SearchComponent, canActivate: [authGuard] },
+  { path: 'watchlist', component: WatchlistComponent, canActivate: [authGuard] },
+  { path: 'ratings', component: RatingsComponent, canActivate: [authGuard] },
+  { path: 'recommendations', component: RecommendationsComponent, canActivate: [authGuard] },
+  { path: 'share', component: ShareComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: '' }
 ];

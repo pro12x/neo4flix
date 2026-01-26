@@ -32,6 +32,7 @@ interface BrowseSection {
           <a routerLink="/recommendations">Recommendations</a>
           <a routerLink="/ratings">My Ratings</a>
           <a routerLink="/watchlist">Watchlist</a>
+          <a routerLink="/profile">Profile</a>
         </nav>
         <div class="user-actions">
           <a routerLink="/search" class="search-icon">
@@ -52,7 +53,7 @@ interface BrowseSection {
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>
                 Play
               </button>
-              <a [routerLink]="['/movies', fm.id]" class="btn btn-secondary">More Info</a>
+              <a [routerLink]="['/movie', fm.id]" class="btn btn-secondary">More Info</a>
             </div>
           </div>
         </section>

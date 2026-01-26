@@ -98,6 +98,12 @@ services:
                 condition: service_healthy
             eureka-server:
                 condition: service_healthy
+        healthcheck:
+            test: curl -f http://localhost:${USER_SERVICE_PORT}/actuator/health || exit 1
+            interval: 15s
+            timeout: 10s
+            retries: 5
+            start_period: 45s
 
     # Movie Microservice
     movie-service:
@@ -249,6 +255,7 @@ services:
         environment:
             # Browser reaches gateway through host port mapping
             - API_BASE_URL=http://vps-665ee063.vps.ovh.ca:${API_GATEWAY_PORT}
+#            - API_BASE_URL=http://localhost:${API_GATEWAY_PORT}
         depends_on:
             api-gateway:
                 condition: service_healthy

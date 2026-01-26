@@ -18,4 +18,7 @@ public interface UserRepository extends Neo4jRepository<User, String> {
 
     @Query("MATCH (u:Users {id: $userId})-[r:RATED]->(m:Movie) RETURN m, r")
     Object findUserRatings(String userId);
+
+    @Query("MATCH (u:Users {email: $email}) RETURN u ORDER BY u.created_at ASC LIMIT 1")
+    Optional<User> findFirstByEmail(String email);
 }

@@ -52,12 +52,48 @@ export class AuthService {
   }
 
   /**
-   * Login user
+   * Login user (2FA-aware). Backend may return either AuthResponse or {2fa_required: true, email: string}
    */
-  login(request: LoginRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.API_URL}/login`, request).pipe(
+  login(request: LoginRequest): Observable<any> {
+    return this.http.post<any>(`${this.API_URL}/login`, request).pipe(
+      tap((response) => {
+        console.log('[AuthService] login response:', response);
+        // If backend returned tokens directly (no 2FA), store them
+        if (response && response.accessToken) {
+          this.handleAuthResponse(response as AuthResponse);
+        }
+      })
+    );
+  }
+
+  /**
+   * 2FA: request setup (secret + otpauth uri)
+   */
+  setupTwoFactor(email: string): Observable<any> {
+    return this.http.post<any>(`${this.API_URL}/2fa/setup`, { email });
+  }
+
+  /**
+   * 2FA: enable (verify initial code) - returns {enabled:true}
+   */
+  enableTwoFactor(email: string, code: number): Observable<any> {
+    return this.http.post<any>(`${this.API_URL}/2fa/enable`, { email, code });
+  }
+
+  /**
+   * 2FA: verify during login - returns AuthResponse on success
+   */
+  verifyTwoFactor(email: string, code: number): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.API_URL}/verify-2fa`, { email, code }).pipe(
       tap(response => this.handleAuthResponse(response))
     );
+  }
+
+  /**
+   * Disable 2FA for user
+   */
+  disableTwoFactor(email: string): Observable<any> {
+    return this.http.post(`${this.API_URL}/2fa/disable`, { email });
   }
 
   /**

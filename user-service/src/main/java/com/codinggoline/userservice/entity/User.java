@@ -44,4 +44,12 @@ public class User {
     @Property("created_at")
     private LocalDateTime createdAt;
 
+    // 2FA fields
+    @Property("two_fa_enabled")
+    @Builder.Default
+    private boolean twoFactorEnabled = false;
+
+    @Property("two_fa_secret")
+    private String twoFactorSecret;
+
 }

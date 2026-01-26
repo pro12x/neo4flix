@@ -14,14 +14,14 @@ Neo4flix is a comprehensive movie recommendation engine built with modern micros
 
 ### Microservices
 
-The application consists of 6 services:
+The application consists of 7 services:
 
 1. **Eureka Server** (Port 8761)
    - Service Discovery
    - Service registry and health monitoring
    - Dashboard UI for service visualization
 
-2. **API Gateway** (Port 8080)
+2. **API Gateway** (Port 1111)
    - Single entry point for all requests
    - Load balancing with Eureka integration
    - Circuit breaker pattern (Resilience4j)
@@ -32,6 +32,7 @@ The application consists of 6 services:
    - User registration and authentication
    - Profile management
    - User preferences
+   - Two-Factor Authentication (2FA)
 
 4. **Movie Service** (Port 1113)
    - Movie catalog management
@@ -48,6 +49,12 @@ The application consists of 6 services:
    - Content-based recommendations
    - Trending movies
    - Genre-specific suggestions
+
+7. **Neo4Flix UI** (Port 4200)
+   - Angular frontend application
+   - Responsive movie browsing interface
+   - User authentication and profile management
+   - Movie ratings and watchlist
 
 ### Technology Stack
 
@@ -180,7 +187,7 @@ mvn spring-boot:run
 #### Frontend Setup
 
 ```bash
-cd frontend
+cd neo4flix-ui
 npm install
 npm start
 ```
@@ -286,6 +293,10 @@ POST /api/v1/ratings
 
 The application implements JWT-based authentication for secure access to all endpoints.
 
+### Two-Factor Authentication (2FA)
+
+Neo4Flix supports Two-Factor Authentication using TOTP (Time-based One-Time Password) for enhanced security. Users can enable 2FA in their profile using Google Authenticator or similar apps.
+
 ### Password Policy
 
 - Minimum 8 characters
@@ -317,6 +328,7 @@ mvn test
 - Movie Service (Port 1113)
 - Rating Service (Port 1114)
 - Recommendation Service (Port 1115)
+- Neo4Flix UI (Port 4200)
 - MongoDB (for additional data)
 - Zookeeper (Port 2181)
 - Kafka (Port 9092)
