@@ -110,4 +110,13 @@ public class MovieController {
         log.info("Received request to search movies (paged)");
         return ResponseEntity.ok(movieService.searchMoviesPaged(title, genre, minRating, sort, page, size));
     }
+
+    @GetMapping("/{id}/similar")
+    public ResponseEntity<List<MovieResponse>> getSimilarMovies(
+            @PathVariable String id,
+            @RequestParam(defaultValue = "6") int limit) {
+        log.info("Received request to get similar movies for movie id: {}, limit: {}", id, limit);
+        List<MovieResponse> responses = movieService.getSimilarMovies(id, limit);
+        return ResponseEntity.ok(responses);
+    }
 }

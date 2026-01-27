@@ -41,4 +41,18 @@ export class RecommendationService {
     const params = new HttpParams().set('limit', String(limit));
     return this.http.get<MovieRecommendation[]>(`${this.API_URL}/movie/${encodeURIComponent(movieId)}/similar`, { params });
   }
+
+  getRecommendations(userId: string, mode: 'mixed' | 'trending' | 'collaborative' | 'content', limit = 20): Observable<MovieRecommendation[]> {
+    switch (mode) {
+      case 'trending':
+        return this.trending(userId, limit);
+      case 'collaborative':
+        return this.collaborative(userId, limit);
+      case 'content':
+        return this.contentBased(userId, limit);
+      case 'mixed':
+      default:
+        return this.forUser(userId, limit);
+    }
+  }
 }

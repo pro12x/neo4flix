@@ -58,4 +58,12 @@ public interface MovieRepository extends Neo4jRepository<Movie, String> {
             "AND ($minRating IS NULL OR m.average_rating >= $minRating) " +
             "RETURN count(m)")
     long countSearch(String title, String genre, Double minRating);
+
+    @Query("MATCH (m:Movie), (current:Movie {id: $movieId}) " +
+            "WHERE m.id <> $movieId " +
+            "AND ANY(genre IN m.genres WHERE genre IN current.genres) " +
+            "RETURN m " +
+            "ORDER BY m.average_rating DESC, m.release_date DESC " +
+            "LIMIT $limit")
+    List<Movie> findSimilarMovies(String movieId, int limit);
 }

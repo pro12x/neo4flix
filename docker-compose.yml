@@ -254,8 +254,8 @@ services:
             - "4200:80"
         environment:
             # Browser reaches gateway through host port mapping
-            - API_BASE_URL=http://vps-665ee063.vps.ovh.ca:${API_GATEWAY_PORT}
-#            - API_BASE_URL=http://localhost:${API_GATEWAY_PORT}
+#            - API_BASE_URL=http://vps-665ee063.vps.ovh.ca:${API_GATEWAY_PORT}
+            - API_BASE_URL=http://localhost:${API_GATEWAY_PORT}
         depends_on:
             api-gateway:
                 condition: service_healthy

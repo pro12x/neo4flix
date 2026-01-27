@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, inject, signal } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, OnDestroy, SimpleChanges, inject, signal, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 @Component({
@@ -234,7 +234,20 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
     }
   `]
 })
-export class VideoPlayerComponent implements OnInit, OnChanges {
+export class VideoPlayerComponent implements OnInit, OnChanges, OnDestroy {
+  private readonly el = inject(ElementRef<HTMLElement>);
+  private movedToBody = false;
+
+  ngOnDestroy() {
+    try {
+      const native = this.el?.nativeElement;
+      if (native && native.parentElement === document.body) {
+        document.body.removeChild(native);
+      }
+    } catch {
+      // ignore
+    }
+  }
   private readonly sanitizer = inject(DomSanitizer);
 
   @Input() videoUrl?: string;
@@ -248,6 +261,16 @@ export class VideoPlayerComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     this.refreshUrl();
+    // Ensure overlay is appended to document.body so position:fixed centers relative to viewport
+    try {
+      const native = this.el?.nativeElement;
+      if (native && typeof document !== 'undefined' && native.parentElement !== document.body) {
+        document.body.appendChild(native);
+        this.movedToBody = true;
+      }
+    } catch {
+      // ignore in non-browser environments
+    }
   }
 
   ngOnChanges(changes: SimpleChanges) {

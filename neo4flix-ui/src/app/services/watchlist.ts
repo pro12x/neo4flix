@@ -9,6 +9,8 @@ export interface WatchlistMovie {
   genres?: string[];
   poster?: string;
   averageRating?: number;
+  releaseDate?: string;
+  plot?: string;
   addedAt?: string;
 }
 
@@ -18,10 +20,14 @@ export interface WatchlistMovie {
 export class WatchlistService {
   private readonly API_URL = `${environment.apiBaseUrl}/api/v1/users`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {}
 
   list(userId: string): Observable<WatchlistMovie[]> {
     return this.http.get<WatchlistMovie[]>(`${this.API_URL}/${encodeURIComponent(userId)}/watchlist`);
+  }
+
+  getWatchlist(userId: string): Observable<WatchlistMovie[]> {
+    return this.list(userId);
   }
 
   add(userId: string, movieId: string): Observable<void> {

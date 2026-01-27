@@ -48,4 +48,9 @@ export class MovieService {
 
     return this.http.get<PagedResponse<Movie>>(`${this.API_URL}/search-paged`, { params });
   }
+
+  getSimilarMovies(movieId: string, limit = 6): Observable<Movie[]> {
+    const params = new HttpParams().set('limit', String(limit));
+    return this.http.get<Movie[]>(`${this.API_URL}/${encodeURIComponent(movieId)}/similar`, { params });
+  }
 }

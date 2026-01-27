@@ -26,8 +26,20 @@ import { Movie } from '../../models/movie.model';
           <button class="btn-icon" type="button" (click)="played.emit()" aria-label="Play trailer">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
           </button>
-          <button class="btn-icon" type="button" (click)="watchlistAdd.emit()" aria-label="Add to watchlist">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14m-7-7h14"/></svg>
+          <button
+            class="btn-icon watchlist-btn"
+            type="button"
+            (click)="toggleWatchlist()"
+            [class.in-watchlist]="isInWatchlist"
+            [disabled]="watchlistLoading()"
+            aria-label="Toggle watchlist">
+            <svg *ngIf="!isInWatchlist" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 5v14m-7-7h14"/>
+            </svg>
+            <svg *ngIf="isInWatchlist" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+            <div *ngIf="watchlistLoading()" class="loading-spinner"></div>
           </button>
           <a [routerLink]="['/movie', movie.id]" class="btn-icon" aria-label="Details">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
@@ -141,12 +153,60 @@ import { Movie } from '../../models/movie.model';
     .btn-icon:hover svg {
       stroke: black;
     }
+
+    .watchlist-btn {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .watchlist-btn.in-watchlist {
+      background-color: rgba(239, 68, 68, 0.8);
+      border-color: #ef4444;
+    }
+
+    .watchlist-btn.in-watchlist:hover {
+      background-color: rgba(239, 68, 68, 1);
+      border-color: #dc2626;
+      color: white;
+    }
+
+    .watchlist-btn.in-watchlist:hover svg {
+      stroke: white;
+    }
+
+    .loading-spinner {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border: 3px solid rgba(255, 255, 255, 0.7);
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   `]
 })
 export class MovieCardComponent {
   @Input({ required: true }) movie!: Movie;
+  @Input() isInWatchlist: boolean = false;
   @Output() played = new EventEmitter<void>();
   @Output() watchlistAdd = new EventEmitter<void>();
+  @Output() watchlistRemove = new EventEmitter<void>();
 
   isHovered = signal(false);
+  watchlistLoading = signal(false);
+
+  toggleWatchlist() {
+    this.watchlistLoading.set(true);
+    if (this.isInWatchlist) {
+      this.watchlistRemove.emit();
+    } else {
+      this.watchlistAdd.emit();
+    }
+    // The parent will update isInWatchlist and set loading to false
+  }
 }

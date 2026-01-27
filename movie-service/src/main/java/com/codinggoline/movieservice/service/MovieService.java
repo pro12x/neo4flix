@@ -168,4 +168,16 @@ public class MovieService {
                 .size(safeSize)
                 .build();
     }
+
+    @Transactional(readOnly = true)
+    public List<MovieResponse> getSimilarMovies(String movieId, int limit) {
+        log.info("Fetching similar movies for movie id: {}, limit: {}", movieId, limit);
+
+        // Find movies with similar genres, excluding the current movie
+        List<Movie> similarMovies = movieRepository.findSimilarMovies(movieId, limit);
+
+        return similarMovies.stream()
+                .map(movieMapper::toResponse)
+                .toList();
+    }
 }

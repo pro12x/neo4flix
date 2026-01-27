@@ -155,4 +155,15 @@ export class AuthService {
     // Update current user
     this.currentUserSubject.next(response.user);
   }
+
+  /**
+   * Update stored current user (merge partial fields)
+   */
+  updateCurrentUser(patch: Partial<User>): void {
+    const current = this.currentUserValue;
+    if (!current) return;
+    const updated = { ...current, ...patch } as User;
+    localStorage.setItem(this.USER_KEY, JSON.stringify(updated));
+    this.currentUserSubject.next(updated);
+  }
 }
