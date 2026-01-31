@@ -440,3 +440,84 @@ For support, email support@neo4flix.com or open an issue in the repository.
 ---
 
 **Built with ❤️ using Spring Boot, Neo4j, and Angular**
+
+## Frontend (Neo4Flix UI) — HTTPS, logs and CORS notes
+
+Note: The frontend has been hardened and updated to run over HTTPS in container deployments and to avoid accidental leakage of sensitive data via console logs. Read the short how-to and troubleshooting notes below.
+
+### HTTPS (production / docker)
+
+- The frontend is served by an internal Nginx inside the `neo4flix-ui` container and listens on port 1116 with TLS enabled. The container exposes the UI over HTTPS to avoid mixed-content issues when the backend is HTTPS.
+- Nginx configuration to look at: `neo4flix-ui/nginx/default.conf` — it contains the `listen 1116 ssl;` stanza and expects certificates at:
+  - `/etc/ssl/certs/neo4flix-ui-cert.pem`
+  - `/etc/ssl/private/neo4flix-ui-key.pem`
+
+- In local/container development you can use self-signed certificates (the repo contains helper scripts in `docs/` and `neo4flix-ui/` to generate dev certs). When using self-signed certs, your browser will require explicitly trusting the cert or you can bypass certificate checks in tests using `curl -k`.
+
+- The Nginx reverse proxy forwards API calls with the original path preserved. If you access the UI at `https://localhost:1116`, API calls to `/api/...` are proxied to the API Gateway (internal service) so the browser does not need to talk to the gateway port directly and CORS / mixed-content issues are avoided.
+
+  - Example: frontend request `POST https://localhost:1116/api/v1/auth/login` is proxied to `http://api-gateway:1111/api/v1/auth/login` by the container network (no trailing slash rewrite), preventing 404 caused by path stripping.
+
+### Ports (summary)
+- Frontend (NGINX with TLS): 1116 (HTTPS)
+- API Gateway (internal in compose): 1111 (HTTP by gateway service)
+
+> If you previously ran the frontend at `http://localhost:4200` for development, the Dockerized containerized frontend now serves over HTTPS at `https://localhost:1116`. The dev server (`npm start`) still runs on 4200 for local dev without Docker.
+
+### How to (re)build and start the frontend with HTTPS in Docker Compose
+
+1. Ensure certificates are present (or generate dev certs). The project includes scripts and docs to generate dev certs. One simple helper is in `docs/GENERATE_DEV_SSL_CERTS.sh`.
+
+2. Rebuild and start the frontend container (and the gateway if you need it):
+
+```bash
+# from repository root
+# rebuild frontend image and start the ui and gateway
+docker-compose up --build neo4flix-ui api-gateway
+```
+
+3. Open: https://localhost:1116 (ignore certificate warnings if self-signed or add the cert to your OS/browser trust store).
+
+4. Test the API proxy behavior (example):
+
+```bash
+# health check for frontend nginx
+curl -k https://localhost:1116/health
+# login (example), -k ignores self-signed cert warnings
+curl -k -v https://localhost:1116/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@user.com","password":"Password123!"}'
+```
+
+If you receive 404 for `/api/...` when using the Dockerized UI, be sure your containers are up and `api-gateway` is reachable from the `neo4flix-ui` container (compose network). The Nginx config was fixed to forward the full original path (no path-stripping) — this fixes cases where `proxy_pass` included a trailing slash and caused `/api` to be removed.
+
+### Console logs: disabled by default
+
+- To avoid accidental leakage of tokens, user info or sensitive data in production, the frontend now disables all `console` methods by default (log/debug/info/warn/error/trace) very early during application bootstrap.
+- Implementation: `neo4flix-ui/src/main.ts` contains a small runtime override that replaces `console.log`, `console.error`, etc. with no-op functions. This prevents accidental console output in production containers.
+
+- Re-enable logs temporarily for debugging (NOT recommended in production):
+  - Set a runtime flag in the frontend runtime config before the app boots. The runtime config file used by the Docker entrypoint is `neo4flix-ui/public/assets/env.js` and you can set:
+
+```javascript
+window.__env = window.__env || {};
+window.__env.disableLogs = 'false';
+```
+
+  - Note: For the override to take effect you must set this before Angular bootstraps (the Docker entrypoint will overwrite `assets/env.js` at container startup).
+
+### CORS and mixed-content
+
+- The dockerized frontend proxies requests to the API Gateway. Because the browser talks to the UI host (`https://localhost:1116`) and Nginx forwards to the internal gateway (HTTP), the browser sees only same-origin requests to the UI's host and CORS issues are avoided.
+- If you run the frontend outside of the container (e.g., `npm start` on `http://localhost:4200`), you must ensure the API Gateway allows CORS from that origin (see gateway CORS configuration). The API Gateway contains CORS configuration in its Spring Boot config (see `api-gateway/src/main/.../CorsConfig` if you need to adjust allowed origins).
+
+### What changed in the codebase (short list)
+- `neo4flix-ui/nginx/default.conf` — nginx updated to listen on 1116 with SSL, redirect HTTP 80 → HTTPS:1116, and `location /api/ { proxy_pass http://api-gateway:1111; }` (no trailing slash to preserve request path).
+- `neo4flix-ui/src/main.ts` — global console override to disable console methods by default and silent bootstrap catch.
+- Multiple frontend components & interceptors had console.* calls removed or neutralized (no sensitive data logged). See `src/app/...` for individual edits.
+
+### Troubleshooting
+- 404 on POST to `/api/v1/auth/login` from the UI:
+  - If running via Docker compose, ensure `neo4flix-ui` and `api-gateway` services are up and healthy, and `neo4flix-ui` can resolve `api-gateway` (use `docker-compose logs` and `docker-compose exec neo4flix-ui nginx -T` to inspect active config).
+  - If running the Angular dev server (4200), ensure `environment.apiBaseUrl` or `public/assets/env.js` points to the correct gateway URL and that gateway CORS allows `http://localhost:4200`.
+
