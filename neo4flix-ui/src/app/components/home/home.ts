@@ -1202,8 +1202,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     section.loading.set(true);
     section.error.set(null);
 
-    console.log(`[Home] Loading section "${section.title}" with query:`, section.query);
-
     this.movieService.searchPaged({
       title: undefined,
       genre: section.query.genre,
@@ -1215,10 +1213,9 @@ export class HomeComponent implements OnInit, OnDestroy {
       next: res => {
         const items = res?.items || [];
         const withTrailers = items.filter(m => m.trailerUrl?.trim()).length;
-        console.log(`[Home] Section "${section.title}" loaded ${items.length} movies (${withTrailers} with trailers)`);
 
         if (items.length > 0 && withTrailers === 0) {
-          console.warn(`[Home] ⚠️  Section "${section.title}" has ${items.length} movies but NONE have trailerUrl!`);
+          // No console warning to avoid leaking data
         }
 
         section.items.set(items);
@@ -1231,7 +1228,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         }
       },
       error: err => {
-        console.error(`[Home] Error loading section "${section.title}":`, err);
+        // Removed console logging for privacy
         section.loading.set(false);
         section.error.set(err?.error?.message || `Failed to load ${section.title}`);
       }
@@ -1248,7 +1245,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.watchlistMovieIds.set(movieIds);
       },
       error: err => {
-        console.error('Failed to load watchlist:', err);
+        // Removed console logging for privacy
       }
     });
   }

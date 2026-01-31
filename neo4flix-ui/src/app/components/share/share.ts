@@ -438,7 +438,9 @@ export class ShareComponent {
     navigator.clipboard.writeText(shareUrl).then(() => {
       alert('Shareable link copied to clipboard!');
     }).catch(err => {
-      console.error('Failed to copy link: ', err);
+      // Clipboard failed - do not log to console to avoid leaking any info
+      // Optionally show a user-friendly message
+      alert('Unable to copy link to clipboard');
     });
   }
 }

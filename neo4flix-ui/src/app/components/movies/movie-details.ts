@@ -951,7 +951,6 @@ export class MovieDetailsComponent implements OnInit {
 
     // Here you would typically navigate to a video player component or open a modal
     // For this example, we'll just log the action
-    console.log(`Playing video for movie: ${m.title}`);
   }
 
   playVideoForMovie(movie: Movie) {
@@ -959,8 +958,7 @@ export class MovieDetailsComponent implements OnInit {
 
     this.videoPlayerVisible.set(true);
 
-    // Log the action or handle video play for the specific movie
-    console.log(`Playing video for movie: ${movie.title}`);
+    // No console logging to avoid exposing user behavior
   }
 
   goBack() {
@@ -974,8 +972,8 @@ export class MovieDetailsComponent implements OnInit {
     const shareUrl = `${globalThis.location.origin}/share?movieId=${movie.id}`;
     navigator.clipboard.writeText(shareUrl).then(() => {
       this.toastService.show('Shareable link copied to clipboard!', 'success');
-    }).catch(err => {
-      console.error('Failed to copy link: ', err);
+    }).catch(() => {
+      // Removed console.error to avoid leaking details
       this.toastService.show('Failed to copy link', 'error');
     });
   }

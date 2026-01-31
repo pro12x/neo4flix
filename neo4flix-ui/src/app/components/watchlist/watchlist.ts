@@ -1263,7 +1263,7 @@ export class WatchlistComponent {
         this.loading.set(false);
       },
       error: (err: any) => {
-        console.error('[Watchlist] Error:', err);
+        // Removed console logging for privacy
         this.loading.set(false);
         this.error.set(err?.error?.message || 'Failed to load watchlist');
       }
@@ -1315,7 +1315,7 @@ export class WatchlistComponent {
         this.videoPlayerVisible.set(true);
       },
       error: err => {
-        console.error('[Watchlist] Failed to load movie details for trailer:', err);
+        // Removed console logging for privacy
         this.toastService.show('Failed to load trailer.', 'error');
       }
     });
@@ -1323,7 +1323,7 @@ export class WatchlistComponent {
 
   rateMovie(movie: WatchlistMovie) {
     // Parameter is intentionally unused - placeholder for future rating feature
-    console.log('Rating requested for:', movie.title);
+    // Removed console logging
     this.toastService.show('Rating feature available on movie details page!', 'info');
   }
 

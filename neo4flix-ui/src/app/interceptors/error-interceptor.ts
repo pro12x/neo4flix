@@ -13,12 +13,11 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         authService.logout();
       } else if (error.status === 403) {
         // Forbidden - keep the user on the same route; show a clear error.
-        // Redirecting here hides the root cause and creates confusing UX loops.
-        console.warn('Forbidden (403) for request:', req.url);
+        // No logging to console to avoid leaking request info
       }
 
       const errorMessage = error.error?.message || error.message || 'An error occurred';
-      console.error('HTTP Error:', errorMessage);
+      // Removed console logging for security/privacy
       return throwError(() => error);
     })
   );

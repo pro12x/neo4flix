@@ -57,8 +57,7 @@ export class AuthService {
   login(request: LoginRequest): Observable<any> {
     return this.http.post<any>(`${this.API_URL}/login`, request).pipe(
       tap((response) => {
-        console.log('[AuthService] login response:', response);
-        // If backend returned tokens directly (no 2FA), store them
+        // removed logging to avoid token/PII leakage
         if (response && response.accessToken) {
           this.handleAuthResponse(response as AuthResponse);
         }
@@ -140,14 +139,11 @@ export class AuthService {
    * Handle authentication response
    */
   private handleAuthResponse(response: AuthResponse): void {
-    console.log('[AuthService] Handling auth response:', response);
+    // removed logging to avoid token/PII leakage
 
     // Store tokens
     localStorage.setItem(this.TOKEN_KEY, response.accessToken);
     localStorage.setItem(this.REFRESH_TOKEN_KEY, response.refreshToken);
-
-    console.log('[AuthService] Token stored:', response.accessToken?.substring(0, 20) + '...');
-    console.log('[AuthService] Token from localStorage:', localStorage.getItem(this.TOKEN_KEY)?.substring(0, 20) + '...');
 
     // Store user
     localStorage.setItem(this.USER_KEY, JSON.stringify(response.user));

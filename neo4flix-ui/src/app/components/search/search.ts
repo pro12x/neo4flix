@@ -1091,7 +1091,7 @@ export class SearchComponent implements OnInit {
         });
       },
       error: err => {
-        console.error('[Search] Error:', err);
+        // Removed console logging for privacy
         this.loading.set(false);
         this.error.set(err?.error?.message || 'Search failed');
       }
@@ -1119,7 +1119,7 @@ export class SearchComponent implements OnInit {
 
   changeSort(sortBy: string) {
     // Implement sorting logic here
-    console.log('Sorting by:', sortBy);
+    // No console logging to avoid exposing user actions
   }
 
   private loadWatchlist() {
@@ -1132,7 +1132,7 @@ export class SearchComponent implements OnInit {
         this.watchlistMovieIds.set(movieIds);
       },
       error: err => {
-        console.error('Failed to load watchlist:', err);
+        // Removed console logging
       }
     });
   }

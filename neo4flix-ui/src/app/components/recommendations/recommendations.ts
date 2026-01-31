@@ -1294,7 +1294,7 @@ export class RecommendationsComponent {
         this.videoPlayerVisible.set(true);
       },
       error: err => {
-        console.error('[Recommendations] Failed to load movie details for trailer:', err);
+        // Removed console logging for privacy
         this.toastService.show('Failed to load trailer.', 'error');
       }
     });
