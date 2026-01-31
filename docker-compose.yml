@@ -252,15 +252,19 @@ services:
         restart: unless-stopped
         ports:
             - "4200:80"
+            - "1116:1116"
         environment:
-            # Browser reaches gateway through host port mapping
-            - API_BASE_URL=http://vps-665ee063.vps.ovh.ca:${API_GATEWAY_PORT}
-#            - API_BASE_URL=http://localhost:${API_GATEWAY_PORT}
+            # Browser reaches gateway through nginx proxy at /api (served over HTTPS on host:1116)
+            - API_BASE_URL=
         depends_on:
             api-gateway:
                 condition: service_healthy
         networks:
             - backend-network
+        # Mount local certs into the container so nginx can use them at /etc/ssl
+        volumes:
+            - ./certs/neo4flix-ui/cert.pem:/etc/ssl/certs/neo4flix-ui-cert.pem:ro
+            - ./certs/neo4flix-ui/key.pem:/etc/ssl/private/neo4flix-ui-key.pem:ro
 
 volumes:
     neo4j_data:

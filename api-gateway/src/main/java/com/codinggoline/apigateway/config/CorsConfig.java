@@ -14,9 +14,9 @@ public class CorsConfig {
     @Bean
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration config = new CorsConfiguration();
-        // Allow the frontend origin on the VPS and localhost for local dev
-        config.setAllowedOrigins(List.of("http://vps-665ee063.vps.ovh.ca:4200", "http://localhost:4200"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        // Allow common dev origins (http and https) and enable patterns for flexibility
+        config.setAllowedOriginPatterns(List.of("http://localhost:*", "https://localhost:*", "http://vps-665ee063.vps.ovh.ca:*", "https://vps-665ee063.vps.ovh.ca:*"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
         config.setExposedHeaders(List.of("Authorization"));

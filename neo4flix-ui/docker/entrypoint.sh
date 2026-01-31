@@ -1,8 +1,8 @@
 #!/bin/sh
 set -e
 
-# Default API base URL
-API_BASE_URL="${API_BASE_URL:-http://localhost:1111}"
+# Default API base URL (empty -> use root path, nginx will proxy /api to backend)
+API_BASE_URL="${API_BASE_URL:-}"
 
 echo "🚀 Generating runtime environment config..."
 echo "   API_BASE_URL=${API_BASE_URL}"

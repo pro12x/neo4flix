@@ -28,6 +28,9 @@ RUN rm /etc/nginx/conf.d/default.conf
 # Copy custom nginx config
 COPY nginx/default.conf /etc/nginx/conf.d/
 
+# NOTE: certs are not copied here because the Docker build context is ./neo4flix-ui
+# In docker-compose we mount the host certs into /etc/ssl inside the container.
+
 # Copy built Angular app
 # Angular outputs to dist/neo4flix-ui/browser (check angular.json outputPath)
 COPY --from=builder /app/dist/neo4flix-ui/browser /usr/share/nginx/html
@@ -36,6 +39,6 @@ COPY --from=builder /app/dist/neo4flix-ui/browser /usr/share/nginx/html
 COPY docker/entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 
-EXPOSE 80
+EXPOSE 80 1116
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
