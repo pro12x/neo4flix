@@ -275,15 +275,17 @@ import { AuthService } from '../../../services/auth';
   styles: [`
     :host {
       display: block;
-      height: 100vh;
+      min-height: 100vh;
       overflow-x: hidden;
+      overflow-y: auto;
       background: #000000;
     }
 
     .auth-container {
       position: relative;
-      height: 100vh;
-      overflow: hidden;
+      min-height: 100vh;
+      overflow-x: hidden;
+      overflow-y: auto;
     }
 
     /* Animated Background */

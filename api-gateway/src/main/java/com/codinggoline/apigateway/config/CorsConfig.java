@@ -22,6 +22,7 @@ public class CorsConfig {
                 "https://vps-665ee063.vps.ovh.ca:*",
                 // allow the new deployed frontend domain and any codinggoline subdomains
                 "https://neo4flix.codinggoline.com",
+                "https://neo4flix.codinggoline.com:*",
                 "https://127.0.0.1:*",
                 "https://*.codinggoline.com"
         ));
